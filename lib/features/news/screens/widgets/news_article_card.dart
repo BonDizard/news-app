@@ -17,7 +17,8 @@ class NewsArticleCard extends StatelessWidget {
     final height = MediaQuery.of(context).size.height * 1;
 
     return Card(
-      margin: EdgeInsets.all(10),
+      color: Colors.white,
+      margin: EdgeInsets.all(height * 0.01),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
@@ -32,13 +33,36 @@ class NewsArticleCard extends StatelessWidget {
           );
         },
         child: Container(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.all(height * 0.015),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      article.source!.name.toString(),
+                      style: Theme.of(context).textTheme.displayLarge,
+                    ),
+                    SizedBox(height: height * .02),
+                    Text(article.title.toString(),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.displayMedium),
+                    SizedBox(height: height * .023),
+                    Text(
+                      formattedDate,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: width * 0.05),
               SizedBox(
                 width: width * 0.3,
-                height: height * 0.15,
+                height: height * 0.13,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: article.urlToImage != null &&
@@ -46,42 +70,16 @@ class NewsArticleCard extends StatelessWidget {
                       ? CachedNetworkImage(
                           imageUrl: article.urlToImage.toString(),
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            child: Loader(),
-                          ),
-                          errorWidget: (context, url, error) => Icon(
+                          placeholder: (context, url) => const Loader(),
+                          errorWidget: (context, url, error) => const Icon(
                             Icons.error_outline,
                             color: Colors.red,
                           ),
                         )
-                      : Center(
-                          child: Text('No image to preview'),
+                      : Image.asset(
+                          'assets/breaking_news.jpg',
+                          fit: BoxFit.cover,
                         ),
-                ),
-              ),
-              SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      article.title.toString(),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      article.source!.name.toString(),
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      formattedDate,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
                 ),
               ),
             ],

@@ -10,7 +10,12 @@ class NewsViewModel {
   Future<void> fetchNewsChannelHeadlineApi(
       {required BuildContext context}) async {
     try {
-      final res = await _newsRepository.fetchNewsChannelHeadlineApi().timeout(
+      final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+      final selectedCountry = newsProvider.selectedCountry;
+
+      final res = await _newsRepository
+          .fetchNewsChannelHeadlineApi(selectedCountry)
+          .timeout(
             const Duration(seconds: 10),
           );
       res.fold(
@@ -19,7 +24,6 @@ class NewsViewModel {
           text: failure.toString(),
         ),
         (newsChannelHeadlinesModel) {
-          print('Fetched news data: ${newsChannelHeadlinesModel.toJson()}');
           Provider.of<NewsProvider>(context, listen: false)
               .setNewsChannelHeadlines(newsChannelHeadlinesModel);
           Provider.of<NewsProvider>(context, listen: false).notifyListeners();

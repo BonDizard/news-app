@@ -7,10 +7,11 @@ import '../../../core/constants/api_constant.dart';
 import 'package:http/http.dart' as http;
 
 class NewsRepository {
-  FutureEither<NewsChannelHeadlinesModel> fetchNewsChannelHeadlineApi() async {
+  FutureEither<NewsChannelHeadlinesModel> fetchNewsChannelHeadlineApi(
+      String selectedCountry) async {
     try {
       String url =
-          'https://newsapi.org/v2/top-headlines?country=us&apiKey=${ApiConstant.apiKey}';
+          'https://newsapi.org/v2/top-headlines?country=$selectedCountry&apiKey=${ApiConstant.apiKey}';
 
       final response = await http.get(Uri.parse(url));
 

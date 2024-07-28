@@ -5,9 +5,11 @@ import '../../features/auth/screens/sign_in_screen.dart';
 import '../../features/news/screens/news_page.dart';
 
 final loggedOutRoute = RouteMap(routes: {
-  '/': (_) => const MaterialPage(child: SignInScreen()),
-  '/sign-up': (_) => const MaterialPage(child: SignUpScreen()),
+  '/': (_) => MaterialPage(child: SignUpScreen()),
+  '/sign-in': (_) => const MaterialPage(child: SignInScreen()),
   '/news': (_) => MaterialPage(child: NewsScreen()),
 });
 
-final loggedInRoute = RouteMap(routes: {});
+final loggedInRoute = RouteMap(routes: {
+  '/': (_) => MaterialPage(child: NewsScreen()),
+});

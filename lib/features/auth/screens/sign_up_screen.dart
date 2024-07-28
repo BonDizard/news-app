@@ -3,7 +3,7 @@ import 'package:pingo_learn_news_app/features/auth/screens/widgets/reusable_butt
 import 'package:pingo_learn_news_app/features/auth/screens/widgets/reusable_text_field.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
-import '../../../core/common/loader.dart';
+import '../../../core/common_widgets/loader.dart';
 import '../../../core/utils/snack_bar.dart';
 import '../controller/auth_controller.dart';
 
@@ -87,7 +87,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
       body: isLoading
-          ? Loader()
+          ? const Loader()
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

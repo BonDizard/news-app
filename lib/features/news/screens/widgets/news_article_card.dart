@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../core/common/loader.dart';
+import 'package:intl/intl.dart';
+import '../../../../core/common_widgets/loader.dart';
 import '../../../../models/news_channel_headline_model.dart';
 import '../news_details_screen.dart';
 
 class NewsArticleCard extends StatelessWidget {
   final Articles article;
-  final String formattedDate;
 
-  const NewsArticleCard(
-      {super.key, required this.article, required this.formattedDate});
+  const NewsArticleCard({super.key, required this.article});
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 1;
     final height = MediaQuery.of(context).size.height * 1;
+
+    // Calculate the time difference
+    final DateTime publishedDate = DateTime.parse(article.publishedAt);
+    final Duration difference = DateTime.now().difference(publishedDate);
+    final String formattedDate = _formatDifference(difference);
 
     return Card(
       color: Colors.white,
@@ -47,10 +51,12 @@ class NewsArticleCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.displayLarge,
                     ),
                     SizedBox(height: height * .02),
-                    Text(article.title.toString(),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.displayMedium),
+                    Text(
+                      article.title.toString(),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.displayMedium,
+                    ),
                     SizedBox(height: height * .023),
                     Text(
                       formattedDate,
@@ -87,5 +93,24 @@ class NewsArticleCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Function to format the time difference
+  String _formatDifference(Duration difference) {
+    if (difference.inDays > 1) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inDays == 1) {
+      return '1 day ago';
+    } else if (difference.inHours > 1) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inHours == 1) {
+      return '1 hour ago';
+    } else if (difference.inMinutes > 1) {
+      return '${difference.inMinutes} minutes ago';
+    } else if (difference.inMinutes == 1) {
+      return '1 minute ago';
+    } else {
+      return 'Just now';
+    }
   }
 }

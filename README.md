@@ -1,16 +1,25 @@
-# pingo_learn_news_app
+# News Application
 
-News app for pingo learn
+## Features
 
-## Getting Started
+- **Email-Password Authentication**
+    - Secure authentication using email and password.
+- **Persistent Login**
+    - Users stay logged in after logging in or signing up (only need to log in once).
+- **User Data Storage**
+    - User data is stored in Firebase Firestore in the user collection.
+- **News Fetching**
+    - Fetches news from [News API](https://newsapi.org/).
+- **Top Headlines by Country**
+    - Displays the top headlines based on the user's country.
+- **Country Details Configuration**
+    - Country details are manipulated by Flutter Remote Config.
+- **State Management**
+    - Utilizes Provider for state management.
+- **Responsive UI**
+    - User interface is responsive and adapts to different screen sizes.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+## Feedback
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If you have any feedback, please reach out to me at bharathkumar.kuro@gmail.com.

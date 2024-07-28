@@ -20,8 +20,15 @@ void main() async {
   await remoteConfig.setDefaults(const {
     'countryCode': 'in', // Set your default values here
   });
-  runApp(
-    MultiProvider(
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NewsProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
@@ -40,53 +47,62 @@ void main() async {
           initialData: null,
         ),
       ],
-      child: const MyApp(),
-    ),
-  );
+      child: const MyAppContent(),
+    );
+  }
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyAppContent extends StatefulWidget {
+  const MyAppContent({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MyAppContent> createState() => _MyAppContentState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppContentState extends State<MyAppContent> {
   UserModel? userModel;
   String countryCode = 'in';
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (Provider.of<User?>(context, listen: false) != null) {
-        await getData(context, Provider.of<User?>(context, listen: false)!);
-      }
-      final remoteConfig = FirebaseRemoteConfig.instance;
+    WidgetsBinding.instance.addPostFrameCallback((_) => initialize());
+  }
+
+  Future<void> initialize() async {
+    final user = Provider.of<User?>(context, listen: false);
+    if (user != null) {
+      await getUserData(user.uid);
+    }
+    await configureRemoteConfig();
+  }
+
+  Future<void> configureRemoteConfig() async {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    setState(() {
       countryCode = remoteConfig.getString('countryCode');
-      remoteConfig.onConfigUpdated.listen((RemoteConfigUpdate event) async {
-        await remoteConfig.activate();
-        setState(() {
-          countryCode = remoteConfig.getString('countryCode');
-        });
-        Provider.of<NewsProvider>(context, listen: false)
-            .setSelectedCountry(countryCode, context);
+    });
+    remoteConfig.onConfigUpdated.listen((RemoteConfigUpdate event) async {
+      await remoteConfig.activate();
+      setState(() {
+        countryCode = remoteConfig.getString('countryCode');
       });
+      Provider.of<NewsProvider>(context, listen: false)
+          .setSelectedCountry(countryCode, context);
     });
   }
 
-  Future<void> getData(BuildContext context, User data) async {
+  Future<void> getUserData(String uid) async {
     if (kDebugMode) {
       print('getData called');
     }
     try {
-      userModel = await Provider.of<AuthController>(context, listen: false)
-          .getUserData(data.uid)
-          .first;
+      final authController =
+          Provider.of<AuthController>(context, listen: false);
       final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final userStream = authController.getUserData(uid);
+      userModel = await userStream.first;
       userProvider.updateUser(userModel);
-      setState(() {});
       if (kDebugMode) {
         print('getData completed');
       }
@@ -102,58 +118,52 @@ class _MyAppState extends State<MyApp> {
     final height = MediaQuery.of(context).size.height;
 
     return Consumer<User?>(
-      builder: (context, data, child) {
+      builder: (context, user, child) {
         return MaterialApp.router(
-          theme: ThemeData(
-            textTheme: TextTheme(
-              displayLarge: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-                fontSize: height * 0.02,
-                color: Colors.black,
-              ),
-              displayMedium: TextStyle(
-                fontWeight: FontWeight.normal,
-                fontFamily: 'Poppins',
-                fontSize: height * 0.015,
-                color: Colors.black,
-              ),
-              bodyLarge: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: height * 0.01,
-                color: Colors.black,
-              ),
-            ),
-            colorScheme: const ColorScheme(
-              brightness: Brightness.light,
-              primary: Color(0xFF0C54BE),
-              onPrimary: Colors.white,
-              secondary: Color(0xFF303F60),
-              onSecondary: Colors.white,
-              error: Colors.red,
-              onError: Colors.white,
-              surface: Color(0xFFF5F9FD),
-              onSurface: Color(0xFFCED3DC),
-            ),
-          ),
+          theme: buildThemeData(height),
           debugShowCheckedModeBanner: false,
           routerDelegate: RoutemasterDelegate(
-            routesBuilder: (context) {
-              if (data != null) {
-                if (kDebugMode) {
-                  print('User is logged in');
-                }
-                return loggedInRoute;
-              }
-              if (kDebugMode) {
-                print('User is not logged in');
-              }
-              return loggedOutRoute;
-            },
+            routesBuilder: (context) =>
+                user != null ? loggedInRoute : loggedOutRoute,
           ),
           routeInformationParser: const RoutemasterParser(),
         );
       },
+    );
+  }
+
+  ThemeData buildThemeData(double height) {
+    return ThemeData(
+      textTheme: TextTheme(
+        displayLarge: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins',
+          fontSize: height * 0.02,
+          color: Colors.black,
+        ),
+        displayMedium: TextStyle(
+          fontWeight: FontWeight.normal,
+          fontFamily: 'Poppins',
+          fontSize: height * 0.015,
+          color: Colors.black,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: height * 0.01,
+          color: Colors.black,
+        ),
+      ),
+      colorScheme: const ColorScheme(
+        brightness: Brightness.light,
+        primary: Color(0xFF0C54BE),
+        onPrimary: Colors.white,
+        secondary: Color(0xFF303F60),
+        onSecondary: Colors.white,
+        error: Colors.red,
+        onError: Colors.white,
+        surface: Color(0xFFF5F9FD),
+        onSurface: Color(0xFFCED3DC),
+      ),
     );
   }
 }

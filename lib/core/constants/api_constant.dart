@@ -1,3 +1,3 @@
 class ApiConstant {
-  static String apiKey = '6bd070b8e46a494ba57ff5274edc5adb';
+  static String apiKey = '72895325ab4c46e9834e10aa5969dc0a';
 }

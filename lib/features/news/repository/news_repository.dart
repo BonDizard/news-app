@@ -12,14 +12,13 @@ class NewsRepository {
     try {
       String url =
           'https://newsapi.org/v2/top-headlines?country=$selectedCountry&apiKey=${ApiConstant.apiKey}';
-
       final response = await http.get(Uri.parse(url));
-
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         return right(NewsChannelHeadlinesModel.fromJson(body));
       } else {
-        throw Exception('Error');
+        throw Exception(
+            'Error: ${response.statusCode}, Body: ${response.body}');
       }
     } catch (e) {
       return left(Failure(e.toString()));

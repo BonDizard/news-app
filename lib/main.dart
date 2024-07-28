@@ -11,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'features/auth/controller/auth_controller.dart';
 import 'features/auth/providers/user_provider.dart';
 import 'features/auth/repository/auth_repository.dart';
-import 'features/news/repository/news_provider.dart';
+import 'features/news/providers/news_provider.dart';
 import 'models/user_model.dart';
 
 void main() async {
@@ -30,13 +30,30 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   UserModel? userModel;
 
+  @override
+  void initState() {
+    super.initState();
+    // Move getData call to initState to avoid multiple calls
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (Provider.of<User?>(context, listen: false) != null) {
+        getData(context, Provider.of<User?>(context, listen: false)!);
+      }
+    });
+  }
+
   Future<void> getData(BuildContext context, User data) async {
-    userModel = await Provider.of<AuthController>(context, listen: false)
-        .getUserData(data.uid)
-        .first;
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUser(userModel);
-    setState(() {});
+    print('getData called');
+    try {
+      userModel = await Provider.of<AuthController>(context, listen: false)
+          .getUserData(data.uid)
+          .first;
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.updateUser(userModel);
+      setState(() {});
+      print('getData completed');
+    } catch (error) {
+      print('Error in getData: $error');
+    }
   }
 
   @override
@@ -55,7 +72,7 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
-        StreamProvider(
+        StreamProvider<User?>(
           create: (context) =>
               Provider.of<AuthController>(context, listen: false)
                   .authStateChange,
@@ -72,18 +89,18 @@ class _MyAppState extends State<MyApp> {
                   fontFamily: 'Poppins',
                   fontSize: height * 0.02,
                   color: Colors.black,
-                ), // Bold
+                ),
                 displayMedium: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontFamily: 'Poppins',
                   fontSize: height * 0.015,
                   color: Colors.black,
-                ), // Medium
+                ),
                 bodyLarge: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: height * 0.01,
                   color: Colors.black,
-                ), // Regular
+                ),
               ),
               colorScheme: const ColorScheme(
                 brightness: Brightness.light,
@@ -101,11 +118,10 @@ class _MyAppState extends State<MyApp> {
             routerDelegate: RoutemasterDelegate(
               routesBuilder: (context) {
                 if (data != null) {
-                  getData(context, data);
-                  if (userModel != null) {
-                    return loggedInRoute;
-                  }
+                  print('User is logged in');
+                  return loggedInRoute;
                 }
+                print('User is not logged in');
                 return loggedOutRoute;
               },
             ),
